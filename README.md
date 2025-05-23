@@ -24,7 +24,7 @@ I followed along a series of tutorials written by Brad Duncan that provide tips 
 - <a href="https://unit42.paloaltonetworks.com/using-wireshark-exporting-objects-from-a-pcap/">Wireshark Tutorial: Exporting Objects from a Pcap</a>
 - <a href="https://unit42.paloaltonetworks.com/wireshark-tutorial-decrypting-https-traffic/">Wireshark Tutorial: Decrypting HTTPS traffic</a>
 
-## Traffic Analysis Exercise: Download from fake software site
+## Traffic Analysis Exercise #1: Download from fake software site
 After completing the Wireshark tutorials, I can now apply the tips I learned to complete the exercise found on <a href="https://malware-traffic-analysis.net/2025/01/22/index.html">Malware-Traffic-Analysis.net</a> 
 
 ![image](https://github.com/user-attachments/assets/5f298fe9-ea83-4866-8282-b3cfcd33e7f3)
@@ -58,13 +58,13 @@ For this exercise, answer the following questions for your incident report:
 -    What are the IP addresses used for C2 servers for this infection?
 
 ### ANSWERS
-Using my basic web filter, I find the IP address of the infected Windows client with the correlated MAC address.
+Using my basic web filter ((http.request or tls.handshake.type eq 1) and !(ssdp)), I find the IP address of the infected Windows client with the correlated MAC address.
 
 ![MalwareTrafficAnalysisAnswers1](https://github.com/user-attachments/assets/6f9b763c-c9ad-4ef8-baef-d9b01793fc8a)
 - IP Address: 10.1.7.215
-- MAC Address: 00:d0:b7:26:4a:47
+- MAC Address: 00:d0:b7:26:4a:74
 
-Using the DHCP filter, I find the packet of the DHCP Request. When I go into the frame details and drill down until I find the hostname of the infected Windows client.
+Using the DHCP filter (dhcp), I find the packet of the DHCP Request. When I go into the frame details and drill down until I find the hostname of the infected Windows client.
 
 ![MalwareTrafficAnalysisAnswers2](https://github.com/user-attachments/assets/e7ae8a84-a702-454d-9114-aa86bd935201)
 
@@ -76,8 +76,8 @@ Using the kerberos.CNameString filter, I find the account name of the infected W
 
 - Account Name: shutchenson
 
-Using my basic web filter again, I find the domain name of the fake Google Authenticator website with the possible malware download page.
+Using my basic + dns web filter ((http.request or tls.handshake.type eq 1 or (tcp.flags.syn eq 1 and tcp.flags.ack eq 0) or dns) and !(ssdp)), I find that the fake Google Authenticator page calls to the domain authenticatoor.org.
 
-![MalwareTrafficAnalysisAnswers3](https://github.com/user-attachments/assets/7f2d4f65-d144-4b33-8907-044a281b49d1)
+![image](https://github.com/user-attachments/assets/c1f1da53-0034-41d2-a0ff-4f990d49d5f3)
 
-- Domain names: google-authenticator.burleson-appliance.net, authenticatoor.org
+- Likely domain name for the fake Google Authenticator page: authenticatoor.org
